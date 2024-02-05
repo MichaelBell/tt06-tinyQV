@@ -16,6 +16,7 @@ project:
   # List your project's source files here. Source files must be in ./src and you must list each source file separately, one per line:
   source_files:        
     - "project.v"
+    - "tinyQV/cpu/tinyqv.v"
     - "tinyQV/cpu/alu.v"
     - "tinyQV/cpu/core.v"
     - "tinyQV/cpu/counter.v"
@@ -24,28 +25,30 @@ project:
     - "tinyQV/cpu/mem_ctrl.v"
     - "tinyQV/cpu/qspi_ctrl.v"
     - "tinyQV/cpu/register.v"
+    - "tinyQV/peri/uart/uart_tx.v"
+    - "tinyQV/peri/uart/uart_rx.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "Interrupt 0"
+  ui[1]: "Interrupt 1"
+  ui[2]: "SPI MISO"
+  ui[3]: "UART RX"
+  ui[4]: "GP in4"
+  ui[5]: "GP in5"
+  ui[6]: "GP in6"
+  ui[7]: "GP in7"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "SPI CS"
+  uo[1]: "SPI SCK"
+  uo[2]: "SPI MOSI"
+  uo[3]: "SPI DC"
+  uo[4]: "UART TX"
+  uo[5]: "UART RTS"
+  uo[6]: "GP out0"
+  uo[7]: "GP out1"
 
   # Bidirectional pins
   uio[0]: "Flash CS"
