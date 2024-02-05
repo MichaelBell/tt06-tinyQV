@@ -88,9 +88,9 @@ module tt_um_MichaelBell_tinyQV (
         .spi_data_in(spi_data_in),
         .spi_data_out(spi_data_out),
         .spi_data_oe(spi_data_oe),
-        .spi_select_flash(uio_out[0]),
-        .spi_select_ram_a(uio_out[6]),
-        .spi_select_ram_b(uio_out[7]),
+        .spi_flash_select(uio_out[0]),
+        .spi_ram_a_select(uio_out[6]),
+        .spi_ram_b_select(uio_out[7]),
         .spi_clk_out(uio_out[3])
     );
 

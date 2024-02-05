@@ -22,7 +22,7 @@ project:
     - "tinyQV/cpu/cpu.v"
     - "tinyQV/cpu/decode.v"
     - "tinyQV/cpu/mem_ctrl.v"
-    - "tinyQV/cpu/qspi_flash.v"
+    - "tinyQV/cpu/qspi_ctrl.v"
     - "tinyQV/cpu/register.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
