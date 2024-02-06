@@ -23,6 +23,7 @@ jobs:
         shell: bash
         run: |
           pip install cocotb~=1.8.0
+          pip install riscv-model~=0.6.6
           cocotb-config --libpython
           cocotb-config --python-bin
 
