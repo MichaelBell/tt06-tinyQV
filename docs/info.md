@@ -31,28 +31,19 @@ The SoC includes a UART, and I plan to also add an SPI controller.
 
 ### GPIO
 
-#### GPIO OUT: 0x8000000 (RW)
-
-Writing bits 6 and 7 control out6 and out7.
-
-Reading reads the current state of out0-7.
-
-#### GPIO IN: 0x8000004 (RO)
-
-Reading reads the current state of in0-7.
+| Register | Address | Description |
+| -------- | ------- | ----------- |
+| OUT      | 0x8000000 (W) | Bits 6 and 7 control out6 and out7 |
+| OUT      | 0x8000000 (R) | Reads the current state of out0-7 |
+| IN       | 0x8000004 (R) | Reads the current state of in0-7 |
 
 ### UART
 
-#### UART Data: 0x8000010 (RW)
-
-Writing transmits the byte
-
-Reading reads any waiting byte
-
-#### UART Status: 0x8000014 (RO)
-
-Bit 0 indicates whether the UART TX is busy, bytes should not be written to the data register while this bit is set.
-Bit 1 indicates whether a received byte is available to be read.
+| Register | Address | Description |
+| -------- | ------- | ----------- |
+| DATA     | 0x8000010 (W) | Transmits the byte |
+| DATA     | 0x8000010 (R) | Reads any received byte |
+| STATUS   | 0x8000014 (R) | Bit 0 indicates whether the UART TX is busy, bytes should not be written to the data register while this bit is set.  Bit 1 indicates whether a received byte is available to be read. |
 
 # How to test
 
