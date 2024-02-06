@@ -22,6 +22,18 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
+  wire [3:0] spi_data_in;
+  assign {uio_in[5:4], uio_in[2:1]} = spi_data_in;
+
+  wire [3:0] spi_data_out = {uio_out[5:4], uio_out[2:1]};
+  wire [3:0] spi_data_oe  = {uio_oe[5:4],  uio_oe[2:1]};
+  wire spi_clk_out = uio_out[3];
+  wire spi_flash_select = uio_out[0];
+  wire spi_ram_a_select = uio_out[6];
+  wire spi_ram_b_select = uio_out[7];
+
+  wire uart_tx = uo_out[4];
+
   // Replace tt_um_example with your module name:
   tt_um_MichaelBell_tinyQV user_project (
 

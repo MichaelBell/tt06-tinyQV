@@ -125,7 +125,7 @@ module tt_um_MichaelBell_tinyQV (
     // GPIO Out
     always @(posedge clk) begin
         if (!rst_reg_n) gpio_out <= 0;
-        if (write_n != 2'b11 && connect_peripheral == PERI_GPIO_OUT) gpio_out <= data_to_write[1:0];
+        if (write_n != 2'b11 && connect_peripheral == PERI_GPIO_OUT) gpio_out <= data_to_write[7:6];
     end
 
     // UART

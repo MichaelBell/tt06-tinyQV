@@ -7,14 +7,65 @@ You can also include images in this folder and reference them in the markdown. E
 512 kb in size, and the combined size of all images must be less than 1 MB.
 -->
 
-## How it works
+# How it works
 
-Explain how your project works
+TinyQV is a small Risc-V SoC, implementing the RV32E instruction set, with a couple of caveats:
+- Addresses are 28-bits
+- gp is hardcoded to 0x1000, tp is hardcoded to 0x8000000.
 
-## How to test
+Instructions are read using QSPI from Flash, and a QSPI PSRAM is used for memory.  The QSPI clock and data lines are shared between the flash and the RAM, so only one can be accessed simultaneously.
 
-Explain how to use your project
+Code can only be executed from flash.  Data can be read from flash and RAM, and written to RAM.
 
-## External hardware
+The SoC includes a UART, and I plan to also add an SPI controller.
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+## Address map
+
+| Address range | Device |
+| ------------- | ------ |
+| 0x0000000 - 0x0FFFFFF | Flash |
+| 0x1000000 - 0x17FFFFF | RAM A |
+| 0x1800000 - 0x1FFFFFF | RAM B |
+| 0x8000000 - 0x8000007 | GPIO  |
+| 0x8000010 - 0x8000017 | UART |
+
+### GPIO
+
+#### GPIO OUT: 0x8000000 (RW)
+
+Writing bits 6 and 7 control out6 and out7.
+
+Reading reads the current state of out0-7.
+
+#### GPIO IN: 0x8000004 (RO)
+
+Reading reads the current state of in0-7.
+
+### UART
+
+#### UART Data: 0x8000010 (RW)
+
+Writing transmits the byte
+
+Reading reads any waiting byte
+
+#### UART Status: 0x8000014 (RO)
+
+Bit 0 indicates whether the UART TX is busy, bytes should not be written to the data register while this bit is set.
+Bit 1 indicates whether a received byte is available to be read.
+
+# How to test
+
+Load an image into flash and then select the design or release it from reset.
+
+The bidirectional IOs are all set to inputs when the design is in reset, so the flash (and optionally RAM).
+
+# External hardware
+
+The design is intended to be used with this [QSPI PMOD](https://github.com/mole99/qspi-pmod) on the bidirectional PMOD.  This has a 16MB flash and 2 8MB RAMs.
+
+The UART is on the correct pins to be used with the hardware UART on the RP2040 on the demo board.
+
+The SPI controller is intended to make it easy to drive an ST7789 LCD display (more details to be added).
+
+It may be useful to have buttons to use on the GPIO inputs.
