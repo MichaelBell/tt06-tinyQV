@@ -22,15 +22,22 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
-  wire [3:0] spi_data_in;
-  assign {uio_in[5:4], uio_in[2:1]} = spi_data_in;
+  wire [3:0] qspi_data_in;
+  assign {uio_in[5:4], uio_in[2:1]} = qspi_data_in;
 
-  wire [3:0] spi_data_out = {uio_out[5:4], uio_out[2:1]};
-  wire [3:0] spi_data_oe  = {uio_oe[5:4],  uio_oe[2:1]};
-  wire spi_clk_out = uio_out[3];
-  wire spi_flash_select = uio_out[0];
-  wire spi_ram_a_select = uio_out[6];
-  wire spi_ram_b_select = uio_out[7];
+  wire [3:0] qspi_data_out = {uio_out[5:4], uio_out[2:1]};
+  wire [3:0] qspi_data_oe  = {uio_oe[5:4],  uio_oe[2:1]};
+  wire qspi_clk_out = uio_out[3];
+  wire qspi_flash_select = uio_out[0];
+  wire qspi_ram_a_select = uio_out[6];
+  wire qspi_ram_b_select = uio_out[7];
+
+  wire spi_miso;
+  assign ui_in[2] = spi_miso;
+  wire spi_cs = uo_out[0];
+  wire spi_sck = uo_out[1];
+  wire spi_mosi = uo_out[2];
+  wire spi_dc = uo_out[3];
 
   wire uart_tx = uo_out[4];
 

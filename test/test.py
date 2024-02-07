@@ -14,81 +14,81 @@ async def start_read(dut, addr):
     global select
 
     if addr >= 0x1800000:
-        select = dut.spi_ram_b_select
+        select = dut.qspi_ram_b_select
     elif addr >= 0x1000000:
-        select = dut.spi_ram_a_select
+        select = dut.qspi_ram_a_select
     else:
-        select = dut.spi_flash_select
+        select = dut.qspi_flash_select
     
     assert select.value == 0
-    assert dut.spi_flash_select.value == 0 if dut.spi_flash_select == select else 1
-    assert dut.spi_ram_a_select.value == 0 if dut.spi_ram_a_select == select else 1
-    assert dut.spi_ram_b_select.value == 0 if dut.spi_ram_b_select == select else 1
-    assert dut.spi_clk_out.value == 0
-    assert dut.spi_data_oe.value == 1
+    assert dut.qspi_flash_select.value == 0 if dut.qspi_flash_select == select else 1
+    assert dut.qspi_ram_a_select.value == 0 if dut.qspi_ram_a_select == select else 1
+    assert dut.qspi_ram_b_select.value == 0 if dut.qspi_ram_b_select == select else 1
+    assert dut.qspi_clk_out.value == 0
+    assert dut.qspi_data_oe.value == 1
 
     # Command
     cmd = 0xEB
     for i in range(8):
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 1
-        assert dut.spi_data_out.value == (1 if cmd & 0x80 else 0)
-        assert dut.spi_data_oe.value == 1
+        assert dut.qspi_clk_out.value == 1
+        assert dut.qspi_data_out.value == (1 if cmd & 0x80 else 0)
+        assert dut.qspi_data_oe.value == 1
         cmd <<= 1
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 0
+        assert dut.qspi_clk_out.value == 0
 
     # Address
     for i in range(6):
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 1
-        assert dut.spi_data_out.value == (addr >> (20 - i * 4)) & 0xF
-        assert dut.spi_data_oe.value == 0xF
+        assert dut.qspi_clk_out.value == 1
+        assert dut.qspi_data_out.value == (addr >> (20 - i * 4)) & 0xF
+        assert dut.qspi_data_oe.value == 0xF
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 0
+        assert dut.qspi_clk_out.value == 0
 
     # Dummy
     for i in range(2):
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 1
-        assert dut.spi_data_oe.value == 0xF
-        assert dut.spi_data_out.value == 0xF
+        assert dut.qspi_clk_out.value == 1
+        assert dut.qspi_data_oe.value == 0xF
+        assert dut.qspi_data_out.value == 0xF
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 0
+        assert dut.qspi_clk_out.value == 0
 
     for i in range(4):
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 1
-        assert dut.spi_data_oe.value == 0
+        assert dut.qspi_clk_out.value == 1
+        assert dut.qspi_data_oe.value == 0
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 0
+        assert dut.qspi_clk_out.value == 0
 
 
 nibble_shift_order = [4, 0, 12, 8, 20, 16, 28, 24]
 
 async def send_instr(dut, data):
     for i in range(8):
-        dut.spi_data_in.value = (data >> (nibble_shift_order[i])) & 0xF
+        dut.qspi_data_in.value = (data >> (nibble_shift_order[i])) & 0xF
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
         for _ in range(20):
-            if dut.spi_clk_out.value == 0:
+            if dut.qspi_clk_out.value == 0:
                 await ClockCycles(dut.clk, 1, False)
             else:
                 break
-        assert dut.spi_clk_out.value == 1
-        assert dut.spi_data_oe.value == 0
+        assert dut.qspi_clk_out.value == 1
+        assert dut.qspi_data_oe.value == 0
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
-        assert dut.spi_clk_out.value == 0
+        assert dut.qspi_clk_out.value == 0
 
 send_nops = True
 nop_task = None
@@ -138,6 +138,7 @@ async def test_start(dut):
   for i in range(8):
     await send_instr(dut, InstructionADDI(i+8, x0, 0x102*i).encode())
 
+  # Test UART TX
   uart_byte = 0x54
   await send_instr(dut, InstructionADDI(x1, x0, uart_byte).encode())
   await send_instr(dut, InstructionSW(tp, x1, 0x10).encode())
@@ -154,3 +155,31 @@ async def test_start(dut):
   assert dut.uart_tx.value == 1
 
   await stop_nops()
+
+  # Test SPI
+  spi_byte = 0xa5
+  await send_instr(dut, InstructionADDI(x1, x0, spi_byte | 0x100).encode())
+  await send_instr(dut, InstructionSW(tp, x1, 0x20).encode())
+
+  start_nops(dut)
+  assert dut.spi_cs == 1
+  for i in range(20):
+    await ClockCycles(dut.clk, 1)
+    if dut.spi_cs == 0:
+        break
+
+  for i in range(8):
+      assert dut.spi_cs == 0
+      assert dut.spi_sck == 0
+      assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
+      await ClockCycles(dut.clk, 1)
+      assert dut.spi_cs == 0
+      assert dut.spi_sck == 1
+      assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
+      await ClockCycles(dut.clk, 1)
+      spi_byte <<= 1
+
+  await ClockCycles(dut.clk, 1)
+  assert dut.spi_cs.value == 1
+
+  await stop_nops()  

@@ -10,14 +10,14 @@ You can also include images in this folder and reference them in the markdown. E
 # How it works
 
 TinyQV is a small Risc-V SoC, implementing the RV32E instruction set, with a couple of caveats:
-- Addresses are 28-bits
-- gp is hardcoded to 0x1000, tp is hardcoded to 0x8000000.
+* Addresses are 28-bits
+* gp is hardcoded to 0x1000, tp is hardcoded to 0x8000000.
 
 Instructions are read using QSPI from Flash, and a QSPI PSRAM is used for memory.  The QSPI clock and data lines are shared between the flash and the RAM, so only one can be accessed simultaneously.
 
 Code can only be executed from flash.  Data can be read from flash and RAM, and written to RAM.
 
-The SoC includes a UART, and I plan to also add an SPI controller.
+The SoC includes a UART and an SPI controller.
 
 ## Address map
 
@@ -28,6 +28,7 @@ The SoC includes a UART, and I plan to also add an SPI controller.
 | 0x1800000 - 0x1FFFFFF | RAM B |
 | 0x8000000 - 0x8000007 | GPIO  |
 | 0x8000010 - 0x8000017 | UART |
+| 0x8000020 - 0x8000027 | SPI |
 
 ### GPIO
 
@@ -44,6 +45,14 @@ The SoC includes a UART, and I plan to also add an SPI controller.
 | DATA     | 0x8000010 (W) | Transmits the byte |
 | DATA     | 0x8000010 (R) | Reads any received byte |
 | STATUS   | 0x8000014 (R) | Bit 0 indicates whether the UART TX is busy, bytes should not be written to the data register while this bit is set.  Bit 1 indicates whether a received byte is available to be read. |
+
+### UART
+
+| Register | Address | Description |
+| -------- | ------- | ----------- |
+| DATA     | 0x8000020 (W) | Transmits the byte in bits 7-0, bit 8 is set if this is the last byte of the transaction, bit 9 controls Data/Command on out3 |
+| DATA     | 0x8000020 (R) | Reads the last received byte |
+| STATUS   | 0x8000024 (R) | Bit 0 indicates whether the SPI is busy, bytes should not be written or read from the data register while this bit is set. |
 
 # How to test
 

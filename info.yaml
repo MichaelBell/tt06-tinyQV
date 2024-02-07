@@ -27,6 +27,7 @@ project:
     - "tinyQV/cpu/register.v"
     - "tinyQV/peri/uart/uart_tx.v"
     - "tinyQV/peri/uart/uart_rx.v"
+    - "tinyQV/peri/spi/spi.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:

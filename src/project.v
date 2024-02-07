@@ -75,10 +75,10 @@ module tt_um_MichaelBell_tinyQV (
 /*verilator lint_on UNUSEDSIGNAL*/
     wire       uart_rxd  = ui_in[3];
 
-    wire       spi_cs = 1'b1;  // TODO
-    wire       spi_sck = 1'b1;
-    wire       spi_mosi = 1'b1;
-    wire       spi_dc = 1'b0;
+    wire       spi_cs;
+    wire       spi_sck;
+    wire       spi_mosi;
+    wire       spi_dc;
     wire       uart_txd;
     wire       uart_rts;
     reg  [1:0] gpio_out;
@@ -97,6 +97,8 @@ module tt_um_MichaelBell_tinyQV (
     localparam PERI_GPIO_IN = 3;
     localparam PERI_UART = 4;
     localparam PERI_UART_STATUS = 5;
+    localparam PERI_SPI = 6;
+    localparam PERI_SPI_STATUS = 7;
 
     reg [2:0] connect_peripheral;
 
@@ -105,6 +107,8 @@ module tt_um_MichaelBell_tinyQV (
         else if (addr == 28'h8000004) connect_peripheral = PERI_GPIO_IN;
         else if (addr == 28'h8000010) connect_peripheral = PERI_UART;
         else if (addr == 28'h8000014) connect_peripheral = PERI_UART_STATUS;
+        else if (addr == 28'h8000020) connect_peripheral = PERI_SPI;
+        else if (addr == 28'h8000024) connect_peripheral = PERI_SPI_STATUS;
         else connect_peripheral = PERI_NONE;
     end
 
@@ -118,6 +122,8 @@ module tt_um_MichaelBell_tinyQV (
             PERI_GPIO_IN:     data_from_read = {24'h0, ui_in};
             PERI_UART:        data_from_read = {24'h0, uart_rx_data};
             PERI_UART_STATUS: data_from_read = {30'h0, uart_rx_valid, uart_tx_busy};
+            PERI_SPI:         data_from_read = {24'h0, spi_data};
+            PERI_SPI_STATUS:  data_from_read = {31'h0, spi_busy};
             default:          data_from_read = 32'hFFFF_FFFF;
         endcase
     end
@@ -151,6 +157,29 @@ module tt_um_MichaelBell_tinyQV (
         .uart_rx_read(connect_peripheral == PERI_UART && read_n != 2'b11),
         .uart_rx_valid(uart_rx_valid),
         .uart_rx_data(uart_rx_data) 
+    );
+
+    // SPI
+    wire spi_start = write_n != 2'b11 && connect_peripheral == PERI_SPI;
+    wire [7:0] spi_data;
+    wire spi_busy;
+
+    spi_ctrl i_spi(
+        .clk(clk),
+        .rstn(rst_reg_n),
+
+        .spi_miso(spi_miso),
+        .spi_select(spi_cs),
+        .spi_clk_out(spi_sck),
+        .spi_mosi(spi_mosi),
+        .spi_dc(spi_dc),
+
+        .dc_in(data_to_write[9]),
+        .end_txn(data_to_write[8]),
+        .data_in(data_to_write[7:0]),
+        .start(spi_start),
+        .data_out(spi_data),
+        .busy(spi_busy)
     );
 
 endmodule
