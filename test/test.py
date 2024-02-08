@@ -5,7 +5,15 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, Timer
 
-from riscvmodel.insn import *
+# This hack because it isn't easy to install requirements in the TT GitHub actions
+try:
+    from riscvmodel.insn import *
+except ImportError:
+    import sys
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "riscv-model"])
+    from riscvmodel.insn import *
+
 from riscvmodel.regnames import x0, x1, tp
 
 select = None

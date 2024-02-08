@@ -46,7 +46,7 @@ The SoC includes a UART and an SPI controller.
 | DATA     | 0x8000010 (R) | Reads any received byte |
 | STATUS   | 0x8000014 (R) | Bit 0 indicates whether the UART TX is busy, bytes should not be written to the data register while this bit is set.  Bit 1 indicates whether a received byte is available to be read. |
 
-### UART
+### SPI
 
 | Register | Address | Description |
 | -------- | ------- | ----------- |
