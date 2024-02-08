@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: © 2023 Uri Shaked <uri@tinytapeout.com>
 # SPDX-License-Identifier: MIT
 
+import random
+
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, Timer
@@ -176,18 +178,52 @@ async def test_start(dut):
     if dut.spi_cs == 0:
         break
 
+  # Default divider is 2
+  divider = 2
   for i in range(8):
       assert dut.spi_cs == 0
       assert dut.spi_sck == 0
       assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
-      await ClockCycles(dut.clk, 1)
+      await ClockCycles(dut.clk, divider)
       assert dut.spi_cs == 0
       assert dut.spi_sck == 1
       assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
-      await ClockCycles(dut.clk, 1)
+      await ClockCycles(dut.clk, divider)
       spi_byte <<= 1
 
   await ClockCycles(dut.clk, 1)
   assert dut.spi_cs.value == 1
 
   await stop_nops()  
+
+  for divider in range(1,5):
+    spi_byte = random.randint(0, 255)
+    await send_instr(dut, InstructionADDI(x1, x0, divider - 1).encode())
+    await send_instr(dut, InstructionSW(tp, x1, 0x24).encode())
+    await send_instr(dut, InstructionADDI(x1, x0, spi_byte | 0x100).encode())
+    await send_instr(dut, InstructionSW(tp, x1, 0x20).encode())
+
+    start_nops(dut)
+    assert dut.spi_cs == 1
+    for i in range(20):
+        await ClockCycles(dut.clk, 1)
+        if dut.spi_cs == 0:
+            break
+
+    for i in range(8):
+        assert dut.spi_cs == 0
+        assert dut.spi_sck == 0
+        assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
+        await ClockCycles(dut.clk, divider)
+        assert dut.spi_cs == 0
+        assert dut.spi_sck == 1
+        assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
+        await ClockCycles(dut.clk, divider)
+        spi_byte <<= 1
+
+    await ClockCycles(dut.clk, 1)
+    assert dut.spi_cs.value == 1
+
+    await stop_nops()  
+      
+

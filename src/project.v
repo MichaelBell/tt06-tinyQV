@@ -179,7 +179,10 @@ module tt_um_MichaelBell_tinyQV (
         .data_in(data_to_write[7:0]),
         .start(spi_start),
         .data_out(spi_data),
-        .busy(spi_busy)
+        .busy(spi_busy),
+
+        .set_config(connect_peripheral == PERI_SPI_STATUS && write_n != 2'b11),
+        .divider_in(data_to_write[1:0])
     );
 
 endmodule
