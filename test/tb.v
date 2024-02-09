@@ -1,4 +1,4 @@
-`default_nettype none `timescale 1ns / 1ps
+`default_nettype none `timescale 1ns / 100ps
 
 /* This testbench just instantiates the module and makes some convenient wires
    that can be driven / tested by the cocotb test.py.
@@ -45,7 +45,7 @@ module tb ();
   tt_um_MichaelBell_tinyQV user_project (
 
       // Include power ports for the Gate Level test:
-`ifdef GL_TEST
+`ifdef USE_POWER_PINS
       .VPWR(1'b1),
       .VGND(1'b0),
 `endif
