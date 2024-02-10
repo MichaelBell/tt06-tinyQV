@@ -53,6 +53,7 @@ The SoC includes a UART and an SPI controller.
 | -------- | ------- | ----------- |
 | DATA     | 0x8000020 (W) | Transmits the byte in bits 7-0, bit 8 is set if this is the last byte of the transaction, bit 9 controls Data/Command on out3 |
 | DATA     | 0x8000020 (R) | Reads the last received byte |
+| CONFIG   | 0x8000024 (W) | The low 2 bits set the clock divisor for the SPI clock to 2*(value + 1) |
 | STATUS   | 0x8000024 (R) | Bit 0 indicates whether the SPI is busy, bytes should not be written or read from the data register while this bit is set. |
 
 # How to test

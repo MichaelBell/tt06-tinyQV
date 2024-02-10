@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: © 2023 Uri Shaked <uri@tinytapeout.com>
+# SPDX-FileCopyrightText: © 2024 Michael Bell
 # SPDX-License-Identifier: MIT
 
 import random
@@ -17,6 +17,8 @@ except ImportError:
     from riscvmodel.insn import *
 
 from riscvmodel.regnames import x0, x1, tp
+
+from test_util import reset
 
 select = None
 
@@ -127,19 +129,7 @@ async def test_start(dut):
   cocotb.start_soon(clock.start())
 
   # Reset
-  dut._log.info("Reset")
-  dut.ena.value = 1
-  dut.ui_in.value = 0
-  dut.uio_in.value = 0
-  dut.rst_n.value = 1
-  await ClockCycles(dut.clk, 2)
-  dut.rst_n.value = 0
-  await ClockCycles(dut.clk, 1)
-  assert dut.uio_oe.value == 0
-  await ClockCycles(dut.clk, 9)
-  dut.rst_n.value = 1
-  await ClockCycles(dut.clk, 1)
-  assert dut.uio_oe.value == 0b11001001
+  await reset(dut)
   
   # Should start reading flash after 1 cycle
   await ClockCycles(dut.clk, 1)
