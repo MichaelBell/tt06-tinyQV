@@ -12,6 +12,8 @@ module sim_qspi_pmod (
     input qspi_ram_a_select,
     input qspi_ram_b_select,
 
+    input [1:0] latency,
+
     input debug_clk,
     input [24:0] debug_addr,
     output reg [7:0] debug_data
@@ -74,7 +76,7 @@ module sim_qspi_pmod (
             if (reading || writing) begin
                 addr <= addr + 1;
             end else if (reading_dummy) begin
-                if (start_count == 20) begin
+                if (start_count == 20 + latency) begin
                     reading <= 1;
                     reading_dummy <= 0;
                 end

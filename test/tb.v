@@ -23,7 +23,8 @@ module tb ();
   wire [7:0] uio_oe;
 
   wire [3:0] qspi_data_in;
-  assign {uio_in[5:4], uio_in[2:1]} = qspi_data_in;
+  reg [2:0] latency_cfg;
+  assign {uio_in[5:4], uio_in[2:1]} = rst_n ? qspi_data_in : {1'b0, latency_cfg};
 
   wire [3:0] qspi_data_out = {uio_out[5:4], uio_out[2:1]};
   wire [3:0] qspi_data_oe  = {uio_oe[5:4],  uio_oe[2:1]};

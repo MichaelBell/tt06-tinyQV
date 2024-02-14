@@ -40,7 +40,7 @@ async def test_hello(dut):
     clock = Clock(dut.clk, 15, units="ns")
     cocotb.start_soon(clock.start())
 
-    await reset(dut)
+    await reset(dut, 1)
 
     # Should output: Hello, world!\n
     await receive_string(dut, "Hello, world!\n\r")
