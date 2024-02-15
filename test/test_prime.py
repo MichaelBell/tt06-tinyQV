@@ -13,7 +13,7 @@ async def receive_string(dut, str):
     for char in str:
         dut._log.info(f"Wait for: {char}")
 
-        for _ in range(5000):
+        for _ in range(20000):
             await ClockCycles(dut.clk, 8)
             if dut.uart_tx.value == 0:
                 break
@@ -33,7 +33,7 @@ async def receive_string(dut, str):
         assert dut.uart_tx.value == 1
 
 @cocotb.test()
-async def test_hello(dut):
+async def test_prime(dut):
     dut._log.info("Start")
   
     # Our example module doesn't use clock and reset, but we show how to use them here anyway.
@@ -42,8 +42,12 @@ async def test_hello(dut):
 
     await reset(dut, 3)
 
-    # Should output: Hello, world!\n
-    await receive_string(dut, "Hello, world!\n\r")
-
-    await receive_string(dut, "Hello 1\n\r")
-    await receive_string(dut, "Hello 2\n\r")
+    await receive_string(dut, "3 ")
+    await receive_string(dut, "5 ")
+    await receive_string(dut, "7 ")
+    await receive_string(dut, "11 ")
+    await receive_string(dut, "13 ")
+    await receive_string(dut, "17 ")
+    await receive_string(dut, "19 ")
+    await receive_string(dut, "23 ")
+    await receive_string(dut, "29 ")
