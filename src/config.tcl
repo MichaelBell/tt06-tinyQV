@@ -12,7 +12,7 @@
 
 # PL_TARGET_DENSITY - You can increase this if Global Placement fails with error GPL-0302.
 # Users have reported that values up to 0.8 worked well for them.
-set ::env(PL_TARGET_DENSITY) 0.6
+set ::env(PL_TARGET_DENSITY) 0.65
 
 # CLOCK_PERIOD - Increase this in case you are getting setup time violations.
 # The value is in nanoseconds, so 20ns == 50MHz.
@@ -33,7 +33,7 @@ set ::env(IO_PCT) 0.6
 set ::env(BASE_SDC_FILE) "$::env(DESIGN_DIR)/base.sdc"
 
 # Faster build locally
-set ::env(ROUTING_CORES) 12
+#set ::env(ROUTING_CORES) 12
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 

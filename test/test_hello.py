@@ -33,6 +33,30 @@ async def receive_string(dut, str):
         await Timer(bit_time, "ns")
         assert dut.uart_tx.value == 1
 
+async def read_string(dut):
+    str = ""
+    while not str.endswith('\r'):
+        for _ in range(25000):
+            await ClockCycles(dut.clk, 8)
+            if dut.uart_tx.value == 0:
+                break
+        else:
+            # Should have started by now
+            dut._log.info(f"Received before fail: {str}")
+            assert dut.uart_tx.value == 0
+        
+        uart_byte = 0
+        bit_time = 8680
+        await Timer(bit_time / 2, "ns")
+        assert dut.uart_tx.value == 0
+        for i in range(8):
+            await Timer(bit_time, "ns")
+            uart_byte |= dut.uart_tx.value << i
+        await Timer(bit_time, "ns")
+        assert dut.uart_tx.value == 1
+        str += chr(uart_byte)
+    return str
+
 @cocotb.test()
 async def test_hello(dut):
     dut._log.info("Start")
@@ -52,3 +76,7 @@ async def test_hello(dut):
         await receive_string(dut, "Hello 2\n\r")
         run_time = int(cocotb.utils.get_sim_time("ns") - start_time)
         dut._log.info(f"Took {run_time}ns at latency {latency}")
+
+        if latency == 1 or latency == 5:
+            s = await read_string(dut)
+            dut._log.info(f"Received: {s}")
