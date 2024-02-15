@@ -1,0 +1,42 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Feb 15 12:33:43 2024
+[*]
+[dumpfile] "/home/mdb36/tt/tt06-tinyQV/test/tb_qspi.vcd"
+[dumpfile_mtime] "Thu Feb 15 12:32:06 2024"
+[dumpfile_size] 61952051
+[savefile] "/home/mdb36/tt/tt06-tinyQV/test/qspi.gtkw"
+[timestart] 1371025500
+[size] 1920 985
+[pos] -27 -24
+*-16.799999 1371451600 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_qspi.
+[treeopen] tb_qspi.user_project.
+[treeopen] tb_qspi.user_project.i_tinyqv.
+[treeopen] tb_qspi.user_project.i_tinyqv.cpu.
+[sst_width] 297
+[signals_width] 247
+[sst_expanded] 1
+[sst_vpaned_height] 206
+@28
+tb_qspi.user_project.i_tinyqv.cpu.clk
+@2
+tb_qspi.user_project.i_tinyqv.cpu.instr_addr[23:1]
+@28
+tb_qspi.user_project.i_tinyqv.cpu.instr_ready
+tb_qspi.user_project.i_tinyqv.cpu.instr_fetch_restart
+tb_qspi.user_project.i_tinyqv.cpu.i_core.is_branch
+tb_qspi.user_project.i_tinyqv.cpu.i_core.is_store
+@29
+tb_qspi.user_project.i_tinyqv.cpu.i_core.is_load
+@22
+tb_qspi.user_project.i_tinyqv.cpu.i_core.addr_out[27:0]
+tb_qspi.user_project.i_tinyqv.cpu.data_addr[27:0]
+tb_qspi.user_project.i_tinyqv.cpu.data_in[31:0]
+tb_qspi.user_project.i_tinyqv.cpu.data_out[31:0]
+@28
+tb_qspi.user_project.i_tinyqv.cpu.data_read_n[1:0]
+tb_qspi.user_project.i_tinyqv.cpu.data_write_n[1:0]
+tb_qspi.user_project.i_tinyqv.cpu.data_ready
+[pattern_trace] 1
+[pattern_trace] 0

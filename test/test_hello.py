@@ -6,12 +6,13 @@ import random
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, Timer
+import cocotb.utils
 
 from test_util import reset
 
 async def receive_string(dut, str):
     for char in str:
-        dut._log.info(f"Wait for: {char}")
+        dut._log.debug(f"Wait for: {char}")
 
         for _ in range(5000):
             await ClockCycles(dut.clk, 8)
@@ -40,10 +41,14 @@ async def test_hello(dut):
     clock = Clock(dut.clk, 15.624, units="ns")
     cocotb.start_soon(clock.start())
 
-    await reset(dut, 3)
+    for latency in range(1, 6):
+        start_time = cocotb.utils.get_sim_time("ns")
+        await reset(dut, latency)
 
-    # Should output: Hello, world!\n
-    await receive_string(dut, "Hello, world!\n\r")
+        # Should output: Hello, world!\n
+        await receive_string(dut, "Hello, world!\n\r")
 
-    await receive_string(dut, "Hello 1\n\r")
-    await receive_string(dut, "Hello 2\n\r")
+        await receive_string(dut, "Hello 1\n\r")
+        await receive_string(dut, "Hello 2\n\r")
+        run_time = int(cocotb.utils.get_sim_time("ns") - start_time)
+        dut._log.info(f"Took {run_time}ns at latency {latency}")

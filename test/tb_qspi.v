@@ -61,13 +61,20 @@ module tb_qspi ();
       .rst_n  (rst_n)     // not reset
   );
 
+  // Simulate latency
+  wire [3:0] buffered_qspi_data;
+  reg [15:0] data_buffer;
+  always @(posedge clk) begin
+    data_buffer <= {data_buffer[11:0], buffered_qspi_data};
+  end
+  assign qspi_data_in = (latency_cfg <= 1) ? buffered_qspi_data :
+                        data_buffer[(latency_cfg - 2) * 4 +:4];
+
   // Simulated QSPI PMOD
   sim_qspi_pmod qspi (
     .qspi_data_in(qspi_data_out & qspi_data_oe),
-    .qspi_data_out(qspi_data_in),
+    .qspi_data_out(buffered_qspi_data),
     .qspi_clk(qspi_clk_out),
-
-    .latency(latency_cfg[2:1]),
 
     .qspi_flash_select(qspi_flash_select),
     .qspi_ram_a_select(qspi_ram_a_select),

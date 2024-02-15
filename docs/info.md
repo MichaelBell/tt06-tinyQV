@@ -58,9 +58,22 @@ The SoC includes a UART and an SPI controller.
 
 # How to test
 
-Load an image into flash and then select the design or release it from reset.
+Load an image into flash and then select the design.
 
-The bidirectional IOs are all set to inputs when the design is in reset, so the flash (and optionally RAM).
+Reset the design as follows:
+
+* Set rst_n high and then low to ensure the design sees a falling edge of rst_n.  The bidirectional IOs are all set to inputs while rst_n is low.
+* Program the flash and leave flash in continuous read mode, and the PSRAMs in QPI mode
+* Drive all the QSPI CS high and set SD2:SD0 to the read latency of the QSPI flash and PSRAM in cycles.
+* Clock at least 8 times and stop with clock high
+* Release all the QSPI lines
+* Set rst_n high
+* Set clock low
+* Start clocking normally
+
+Based on the observed latencies from tt3p5 testing, at the target 64MHz clock a read latency of 2 or 3 is likely required.  The maximum supported latency is 5.
+
+Build programs using the riscv32-unknown-elf toolchain and the [tinyQV-sdk](https://github.com/MichaelBell/tinyQV-sdk), some examples are [here](https://github.com/MichaelBell/tinyQV-projects).
 
 # External hardware
 
