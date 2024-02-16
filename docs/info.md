@@ -9,7 +9,7 @@ You can also include images in this folder and reference them in the markdown. E
 
 # How it works
 
-TinyQV is a small Risc-V SoC, implementing the RV32E instruction set, with a couple of caveats:
+TinyQV is a small Risc-V SoC, implementing the RV32EC instruction set, with a couple of caveats:
 
 * Addresses are 28-bits
 * gp is hardcoded to 0x1000, tp is hardcoded to 0x8000000.
