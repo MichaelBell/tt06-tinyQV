@@ -32,10 +32,7 @@ jobs:
           make clean
           make
           # make will return success even if the test fails, so check for failure in the results.xml
-          ! grep failure results.xml
-          make -f test_prog.mk clean
-          make -f test_prog.mk
-          ! grep failure results.xml
+          ! grep failure *results.xml
 
       - name: Test Summary
         uses: test-summary/action@v2.2
