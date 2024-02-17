@@ -12,7 +12,7 @@ You can also include images in this folder and reference them in the markdown. E
 TinyQV is a small Risc-V SoC, implementing the RV32EC instruction set, with a couple of caveats:
 
 * Addresses are 28-bits
-* gp is hardcoded to 0x1000, tp is hardcoded to 0x8000000.
+* gp is hardcoded to 0x1000400, tp is hardcoded to 0x8000000.
 
 Instructions are read using QSPI from Flash, and a QSPI PSRAM is used for memory.  The QSPI clock and data lines are shared between the flash and the RAM, so only one can be accessed simultaneously.
 
