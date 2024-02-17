@@ -72,8 +72,8 @@ async def test_hello(dut):
         # Should output: Hello, world!\n
         await receive_string(dut, "Hello, world!\n\r")
 
-        await receive_string(dut, "Hello 1\n\r")
-        await receive_string(dut, "Hello 2\n\r")
+        await receive_string(dut, "Hello 3\n\r")
+        await receive_string(dut, "Hello 36\n\r")
         run_time = int(cocotb.utils.get_sim_time("ns") - start_time)
         dut._log.info(f"Took {run_time}ns at latency {latency}")
 
