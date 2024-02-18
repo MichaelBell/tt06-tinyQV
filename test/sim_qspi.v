@@ -17,7 +17,7 @@ module sim_qspi_pmod (
     output reg [7:0] debug_data
 );
 
-    parameter   ROM_BITS       = 14;
+    parameter   ROM_BITS       = 15;
     parameter   RAM_BITS       = 13;
 
     reg [31:0] cmd;
