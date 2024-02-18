@@ -67,8 +67,8 @@ module tb_qspi ();
   always @(posedge clk) begin
     data_buffer <= {data_buffer[11:0], buffered_qspi_data};
   end
-  assign qspi_data_in = (latency_cfg <= 1) ? buffered_qspi_data :
-                        data_buffer[(latency_cfg - 2) * 4 +:4];
+  assign qspi_data_in = (latency_cfg < 1) ? buffered_qspi_data :
+                        data_buffer[(latency_cfg - 1) * 4 +:4];
 
   // Simulated QSPI PMOD
   sim_qspi_pmod qspi (
