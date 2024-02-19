@@ -10,3 +10,4 @@ test/__pycache__/
 test/*results.xml
 test/gate_level_netlist.v
 sky130*.no_pg.lib
+gds_render*

@@ -55,10 +55,7 @@ module sim_qspi_pmod (
                 else if (!qspi_ram_b_select)
                     ram_b[addr[RAM_BITS:1]][(4 - 4*addr[0]) +:4] <= qspi_data_in;
             end else if (!reading && !writing && !error) begin
-                if (start_count < 8)
-                    cmd <= {cmd[30:0], qspi_data_in[0]};
-                else
-                    cmd <= {cmd[27:0], qspi_data_in};
+                cmd <= {cmd[27:0], qspi_data_in};
             end
         end
     end
@@ -74,16 +71,20 @@ module sim_qspi_pmod (
             if (reading || writing) begin
                 addr <= addr + 1;
             end else if (reading_dummy) begin
-                if (start_count == 20) begin
+                if (start_count < 8 && cmd[3:0] != 4'b1010) begin
+                    error <= 1;
+                    reading_dummy <= 0;
+                end
+                if (start_count == 12) begin
                     reading <= 1;
                     reading_dummy <= 0;
                 end
-            end else if (!error && start_count == 14) begin
+            end else if (!error && start_count == (qspi_flash_select ? 8 : 6)) begin
                 addr[ROM_BITS:1] <= cmd[ROM_BITS-1:0];
                 addr[0] <= 0;
-                if (cmd[31:24] == 8'hEB)
+                if (!qspi_flash_select || cmd[31:24] == 8'h0B)
                     reading_dummy <= 1;
-                else if (cmd[31:24] == 8'h38)
+                else if (cmd[31:24] == 8'h02)
                     writing <= 1;
                 else
                     error <= 1;

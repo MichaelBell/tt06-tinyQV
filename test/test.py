@@ -37,22 +37,24 @@ async def start_read(dut, addr):
     assert dut.qspi_ram_a_select.value == 0 if dut.qspi_ram_a_select == select else 1
     assert dut.qspi_ram_b_select.value == 0 if dut.qspi_ram_b_select == select else 1
     assert dut.qspi_clk_out.value == 0
-    assert dut.qspi_data_oe.value == 1
 
-    # Command
-    cmd = 0xEB
-    for i in range(8):
-        await ClockCycles(dut.clk, 1, False)
-        assert select.value == 0
-        assert dut.qspi_clk_out.value == 1
-        assert dut.qspi_data_out.value == (1 if cmd & 0x80 else 0)
-        assert dut.qspi_data_oe.value == 1
-        cmd <<= 1
-        await ClockCycles(dut.clk, 1, False)
-        assert select.value == 0
-        assert dut.qspi_clk_out.value == 0
+    if dut.qspi_flash_select != select:
+        # Command
+        cmd = 0xEB
+        assert dut.qspi_data_oe.value == 1    # Command
+        for i in range(8):
+            await ClockCycles(dut.clk, 1, False)
+            assert select.value == 0
+            assert dut.qspi_clk_out.value == 1
+            assert dut.qspi_data_out.value == (1 if cmd & 0x80 else 0)
+            assert dut.qspi_data_oe.value == 1
+            cmd <<= 1
+            await ClockCycles(dut.clk, 1, False)
+            assert select.value == 0
+            assert dut.qspi_clk_out.value == 0
 
     # Address
+    assert dut.qspi_data_oe.value == 0xF
     for i in range(6):
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
@@ -69,7 +71,7 @@ async def start_read(dut, addr):
         assert select.value == 0
         assert dut.qspi_clk_out.value == 1
         assert dut.qspi_data_oe.value == 0xF
-        assert dut.qspi_data_out.value == 0xF
+        assert dut.qspi_data_out.value == 0xA
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
         assert dut.qspi_clk_out.value == 0
