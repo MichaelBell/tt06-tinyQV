@@ -71,7 +71,9 @@ Reset the design as follows:
 * Set clock low
 * Start clocking normally
 
-Based on the observed latencies from tt3p5 testing, at the target 64MHz clock a read latency of 2 or 3 is likely required.  The maximum supported latency is 5.
+Based on the observed latencies from tt3p5 testing, at the target 64MHz clock a read latency of 2 or 3 is likely required.  The maximum supported latency is currently 3, but should get up to 5 to have a chance at running at faster clock speeds.
+
+The above should all be handled by some MicroPython scripts for the RP2040 on the TT demo PC.
 
 Build programs using the riscv32-unknown-elf toolchain and the [tinyQV-sdk](https://github.com/MichaelBell/tinyQV-sdk), some examples are [here](https://github.com/MichaelBell/tinyQV-projects).
 
