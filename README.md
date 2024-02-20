@@ -5,7 +5,7 @@
 - [Documentation for project](docs/info.md)
 - [More details about tinyQV](https://github.com/MichaelBell/tinyQV)
 - [tinyQV-sdk for building tinyQV programs](https://github.com/MichaelBell/tinyQV-sdk)
-- [Example tinyQV programs](https://github.com/MichaelBell/tinyQV-sdk)
+- [Example tinyQV programs](https://github.com/MichaelBell/tinyQV-projects)
 
 ## What is Tiny Tapeout?
 
