@@ -1,6 +1,6 @@
 # Tiny Tapeout project information
 project:
-  title:        "Tiny-QV"      # Project title
+  title:        "TinyQV Risc-V SoC"      # Project title
   author:       "Michael Bell"      # Your name
   discord:      "rebelmike"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "A Risc-V SoC for Tiny Tapeout"      # One line description of what your project does
