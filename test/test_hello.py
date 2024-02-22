@@ -65,7 +65,7 @@ async def test_hello(dut):
     clock = Clock(dut.clk, 15.624, units="ns")
     cocotb.start_soon(clock.start())
 
-    for latency in range(1, 4):
+    for latency in range(1, 6):
         start_time = cocotb.utils.get_sim_time("ns")
         await reset(dut, latency)
 
@@ -77,6 +77,6 @@ async def test_hello(dut):
         run_time = int(cocotb.utils.get_sim_time("ns") - start_time)
         dut._log.info(f"Took {run_time}ns at latency {latency}")
 
-        if latency == 1 or latency == 3:
+        if latency == 1 or latency == 5:
             s = await read_string(dut)
             dut._log.info(f"Received: {s}")
