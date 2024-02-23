@@ -59,6 +59,8 @@ module tt_um_MichaelBell_tinyQV (
         .data_ready(data_ready),
         .data_in(data_from_read),
 
+        .interrupt_req(interrupt_req),
+
         .spi_data_in(qspi_data_in),
         .spi_data_out(qspi_data_out),
         .spi_data_oe(qspi_data_oe),
@@ -114,6 +116,13 @@ module tt_um_MichaelBell_tinyQV (
 
     // All transactions complete immediately
     assign data_ready = 1'b1;
+
+    // Interrupt requests
+    reg [1:0] ui_in_reg;
+    always @(posedge clk) begin
+        ui_in_reg <= ui_in[1:0];
+    end
+    wire [3:0] interrupt_req = {!uart_tx_busy, uart_rx_valid, ui_in_reg[1:0]};
 
     // Read data
     always @(*) begin
