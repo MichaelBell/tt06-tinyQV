@@ -121,6 +121,28 @@ async def stop_nops():
     send_nops = False
     await nop_task
 
+async def read_reg(dut, reg, expected_val):
+  await send_instr(dut, InstructionSW(tp, reg, 0x18).encode())
+
+  start_nops(dut)
+  for i in range(80):
+      if dut.debug_uart_tx.value == 0:
+          break
+      else:
+          await Timer(5, "ns")
+  assert dut.debug_uart_tx.value == 0
+  bit_time = 250
+  await Timer(bit_time / 2, "ns")
+  assert dut.debug_uart_tx.value == 0
+  for i in range(8):
+      await Timer(bit_time, "ns")
+      assert dut.debug_uart_tx.value == (expected_val & 1)
+      expected_val >>= 1
+  await Timer(bit_time, "ns")
+  assert dut.debug_uart_tx.value == 1
+
+  await stop_nops()
+
 
 @cocotb.test()
 async def test_start(dut):
@@ -158,8 +180,15 @@ async def test_start(dut):
 
   await stop_nops()
 
+  # Test Debug UART TX
+  uart_byte = 0x5A
+  await send_instr(dut, InstructionADDI(x1, x0, uart_byte).encode())
+  await read_reg(dut, x1, uart_byte)
+
   # Test SPI
   spi_byte = 0xa5
+  spi_byte_in = random.randint(0, 255)
+  #print(f"{spi_byte_in:02x}")
   await send_instr(dut, InstructionADDI(x1, x0, spi_byte | 0x100).encode())
   await send_instr(dut, InstructionSW(tp, x1, 0x20).encode())
 
@@ -179,17 +208,26 @@ async def test_start(dut):
       await ClockCycles(dut.clk, divider)
       assert dut.spi_cs == 0
       assert dut.spi_sck == 1
+      dut.spi_miso.value = (1 if (spi_byte_in & 0x80) else 0)
       assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
       await ClockCycles(dut.clk, divider)
       spi_byte <<= 1
+      spi_byte_in <<= 1
 
-  await ClockCycles(dut.clk, 1)
+  assert dut.spi_sck == 0
+  assert dut.spi_cs.value == 0
+  await ClockCycles(dut.clk, divider)
   assert dut.spi_cs.value == 1
 
   await stop_nops()  
 
+  await send_instr(dut, InstructionLW(x1, tp, 0x20).encode())
+  await read_reg(dut, x1, spi_byte_in >> 8)
+
   for divider in range(1,5):
     spi_byte = random.randint(0, 255)
+    spi_byte_in = random.randint(0, 255)
+    #print(f"{spi_byte_in:02x}")
     await send_instr(dut, InstructionADDI(x1, x0, divider - 1).encode())
     await send_instr(dut, InstructionSW(tp, x1, 0x24).encode())
     await send_instr(dut, InstructionADDI(x1, x0, spi_byte | 0x100).encode())
@@ -209,13 +247,28 @@ async def test_start(dut):
         await ClockCycles(dut.clk, divider)
         assert dut.spi_cs == 0
         assert dut.spi_sck == 1
+        dut.spi_miso.value = (1 if (spi_byte_in & 0x80) else 0)
         assert dut.spi_mosi.value == (1 if (spi_byte & 0x80) else 0)
         await ClockCycles(dut.clk, divider)
         spi_byte <<= 1
+        spi_byte_in <<= 1
 
-    await ClockCycles(dut.clk, 1)
+    await ClockCycles(dut.clk, divider)
     assert dut.spi_cs.value == 1
 
     await stop_nops()  
-      
+    await send_instr(dut, InstructionLW(x1, tp, 0x20).encode())
+    await read_reg(dut, x1, spi_byte_in >> 8)
+
+  # GPIO
+  for i in range(40):
+    gpio_sel = random.randint(0, 255)
+    gpio_out = random.randint(0, 255)
+    await send_instr(dut, InstructionADDI(x1, x0, gpio_sel).encode())
+    await send_instr(dut, InstructionSW(tp, x1, 0x0C).encode())
+    await send_instr(dut, InstructionADDI(x1, x0, gpio_out).encode())
+    await send_instr(dut, InstructionSW(tp, x1, 0x0).encode())
+    for _ in range(3):
+        await send_instr(dut, InstructionADDI(x0, x0, 0).encode())
+    assert (dut.uo_out.value & gpio_sel) == (gpio_out & gpio_sel)
 

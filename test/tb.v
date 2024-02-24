@@ -41,6 +41,7 @@ module tb ();
   wire spi_dc = uo_out[3];
 
   wire uart_tx = uo_out[4];
+  wire debug_uart_tx = uo_out[6];
 
   // Replace tt_um_example with your module name:
   tt_um_MichaelBell_tinyQV user_project (

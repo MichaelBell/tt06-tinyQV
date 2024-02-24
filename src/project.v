@@ -71,10 +71,7 @@ module tt_um_MichaelBell_tinyQV (
     );
 
     // Peripheral IOs on ui_in and uo_out
-/*verilator lint_off UNUSEDSIGNAL*/
-    wire [1:0] interrupt = ui_in[1:0];  // TODO
-    wire       spi_miso  = ui_in[2];    // TODO
-/*verilator lint_on UNUSEDSIGNAL*/
+    wire       spi_miso  = ui_in[2];
     wire       uart_rxd  = ui_in[3];
 
     wire       spi_cs;
@@ -83,35 +80,38 @@ module tt_um_MichaelBell_tinyQV (
     wire       spi_dc;
     wire       uart_txd;
     wire       uart_rts;
-    reg  [1:0] gpio_out;
+    wire       debug_uart_txd;
+    wire       debug_signal = 1'b0; // TODO
+    reg  [7:0] gpio_out_sel;
+    reg  [7:0] gpio_out;
 
-    assign uo_out[0] = spi_cs;
-    assign uo_out[1] = spi_sck;
-    assign uo_out[2] = spi_mosi;
-    assign uo_out[3] = spi_dc;
-    assign uo_out[4] = uart_txd;
-    assign uo_out[5] = uart_rts;
-    assign uo_out[7:6] = gpio_out;
+    assign uo_out[0] = gpio_out_sel[0] ? gpio_out[0] : spi_cs;
+    assign uo_out[1] = gpio_out_sel[1] ? gpio_out[1] : spi_sck;
+    assign uo_out[2] = gpio_out_sel[2] ? gpio_out[2] : spi_mosi;
+    assign uo_out[3] = gpio_out_sel[3] ? gpio_out[3] : spi_dc;
+    assign uo_out[4] = gpio_out_sel[4] ? gpio_out[4] : uart_txd;
+    assign uo_out[5] = gpio_out_sel[5] ? gpio_out[5] : uart_rts;
+    assign uo_out[6] = gpio_out_sel[6] ? gpio_out[6] : debug_uart_txd;
+    assign uo_out[7] = gpio_out_sel[7] ? gpio_out[7] : debug_signal;
 
     // Address to peripheral map
-    localparam PERI_NONE = 0;
-    localparam PERI_GPIO_OUT = 2;
-    localparam PERI_GPIO_IN = 3;
-    localparam PERI_UART = 4;
-    localparam PERI_UART_STATUS = 5;
-    localparam PERI_SPI = 6;
-    localparam PERI_SPI_STATUS = 7;
+    localparam PERI_NONE = 4'hF;
+    localparam PERI_GPIO_OUT = 4'h0;
+    localparam PERI_GPIO_IN = 4'h1;
+    localparam PERI_GPIO_OUT_SEL = 4'h3;
+    localparam PERI_UART = 4'h4;
+    localparam PERI_UART_STATUS = 4'h5;
+    localparam PERI_DEBUG_UART = 4'h6;
+    localparam PERI_DEBUG_UART_STATUS = 4'h7;
+    localparam PERI_SPI = 4'h8;
+    localparam PERI_SPI_STATUS = 4'h9;
 
-    reg [2:0] connect_peripheral;
-
+    reg [3:0] connect_peripheral;
     always @(*) begin
-        if (addr == 28'h8000000) connect_peripheral = PERI_GPIO_OUT;
-        else if (addr == 28'h8000004) connect_peripheral = PERI_GPIO_IN;
-        else if (addr == 28'h8000010) connect_peripheral = PERI_UART;
-        else if (addr == 28'h8000014) connect_peripheral = PERI_UART_STATUS;
-        else if (addr == 28'h8000020) connect_peripheral = PERI_SPI;
-        else if (addr == 28'h8000024) connect_peripheral = PERI_SPI_STATUS;
-        else connect_peripheral = PERI_NONE;
+        if ({addr[27:6], addr[1:0]} == 24'h800000) 
+            connect_peripheral = addr[5:2];
+        else
+            connect_peripheral = PERI_NONE;
     end
 
     // All transactions complete immediately
@@ -129,8 +129,10 @@ module tt_um_MichaelBell_tinyQV (
         case (connect_peripheral)
             PERI_GPIO_OUT:    data_from_read = {24'h0, uo_out};
             PERI_GPIO_IN:     data_from_read = {24'h0, ui_in};
+            PERI_GPIO_OUT_SEL:data_from_read = {24'h0, gpio_out_sel};
             PERI_UART:        data_from_read = {24'h0, uart_rx_data};
             PERI_UART_STATUS: data_from_read = {30'h0, uart_rx_valid, uart_tx_busy};
+            PERI_DEBUG_UART_STATUS: data_from_read = {31'h0, debug_uart_tx_busy};
             PERI_SPI:         data_from_read = {24'h0, spi_data};
             PERI_SPI_STATUS:  data_from_read = {31'h0, spi_busy};
             default:          data_from_read = 32'hFFFF_FFFF;
@@ -139,8 +141,14 @@ module tt_um_MichaelBell_tinyQV (
 
     // GPIO Out
     always @(posedge clk) begin
-        if (!rst_reg_n) gpio_out <= 0;
-        if (write_n != 2'b11 && connect_peripheral == PERI_GPIO_OUT) gpio_out <= data_to_write[7:6];
+        if (!rst_reg_n) begin
+            gpio_out_sel <= 8'b10000000;
+            gpio_out <= 0;
+        end
+        if (write_n != 2'b11) begin
+            if (connect_peripheral == PERI_GPIO_OUT) gpio_out <= data_to_write[7:0];
+            if (connect_peripheral == PERI_GPIO_OUT_SEL) gpio_out_sel <= data_to_write[7:0];
+        end
     end
 
     // UART
@@ -166,6 +174,19 @@ module tt_um_MichaelBell_tinyQV (
         .uart_rx_read(connect_peripheral == PERI_UART && read_n != 2'b11),
         .uart_rx_valid(uart_rx_valid),
         .uart_rx_data(uart_rx_data) 
+    );
+
+    // Debug UART - runs fast to reduce the width of the count necessary for the divider!
+    wire debug_uart_tx_busy;
+    wire debug_uart_tx_start = write_n != 2'b11 && connect_peripheral == PERI_DEBUG_UART;
+
+    uart_tx #(.CLK_HZ(64_000_000), .BIT_RATE(4_000_000)) i_debug_uart_tx(
+        .clk(clk),
+        .resetn(rst_reg_n),
+        .uart_txd(debug_uart_txd),
+        .uart_tx_en(debug_uart_tx_start),
+        .uart_tx_data(data_to_write[7:0]),
+        .uart_tx_busy(debug_uart_tx_busy) 
     );
 
     // SPI
