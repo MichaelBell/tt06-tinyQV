@@ -12,7 +12,7 @@ from test_util import reset
 
 async def receive_string(dut, str):
     for char in str:
-        dut._log.info(f"Wait for: {char}")
+        dut._log.debug(f"Wait for: {char}")
 
         for _ in range(5000):
             await ClockCycles(dut.clk, 8)
@@ -60,7 +60,7 @@ async def read_string(dut):
 
 @cocotb.test()
 async def test_hello(dut):
-    dut._log.info("Start")
+    dut._log.debug("Start")
   
     # Our example module doesn't use clock and reset, but we show how to use them here anyway.
     clock = Clock(dut.clk, 15.624, units="ns")
