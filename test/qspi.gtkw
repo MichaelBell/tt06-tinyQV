@@ -1,12 +1,12 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Thu Feb 15 12:33:43 2024
+[*] Mon Feb 26 22:19:49 2024
 [*]
 [dumpfile] "/home/mdb36/tt/tt06-tinyQV/test/tb_qspi.vcd"
-[dumpfile_mtime] "Thu Feb 15 12:32:06 2024"
-[dumpfile_size] 61952051
+[dumpfile_mtime] "Mon Feb 26 20:03:15 2024"
+[dumpfile_size] 422260189
 [savefile] "/home/mdb36/tt/tt06-tinyQV/test/qspi.gtkw"
-[timestart] 1371025500
+[timestart] 1372956500
 [size] 1920 985
 [pos] -27 -24
 *-16.799999 1371451600 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
@@ -25,9 +25,11 @@ tb_qspi.user_project.i_tinyqv.cpu.instr_addr[23:1]
 @28
 tb_qspi.user_project.i_tinyqv.cpu.instr_ready
 tb_qspi.user_project.i_tinyqv.cpu.instr_fetch_restart
+@23
+tb_qspi.user_project.i_tinyqv.cpu.pc[31:0]
+@28
 tb_qspi.user_project.i_tinyqv.cpu.i_core.is_branch
 tb_qspi.user_project.i_tinyqv.cpu.i_core.is_store
-@29
 tb_qspi.user_project.i_tinyqv.cpu.i_core.is_load
 @22
 tb_qspi.user_project.i_tinyqv.cpu.i_core.addr_out[27:0]

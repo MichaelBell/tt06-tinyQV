@@ -12,7 +12,7 @@ from test_util import reset
 
 async def receive_string(dut, str):
     for char in str:
-        dut._log.debug(f"Wait for: {char}")
+        dut._log.info(f"Wait for: {char}")
 
         for _ in range(5000):
             await ClockCycles(dut.clk, 8)
@@ -55,6 +55,7 @@ async def read_string(dut):
         await Timer(bit_time, "ns")
         assert dut.uart_tx.value == 1
         str += chr(uart_byte)
+        dut._log.info(f"Recvd: {chr(uart_byte)}")
     return str
 
 @cocotb.test()
@@ -70,10 +71,10 @@ async def test_hello(dut):
         await reset(dut, latency)
 
         # Should output: Hello, world!\n
-        await receive_string(dut, "Hello, world!\n\r")
+        await receive_string(dut, "Hello, world!\r\n")
 
-        await receive_string(dut, "Hello 3\n\r")
-        await receive_string(dut, "Hello 36\n\r")
+        await receive_string(dut, "Hello 3\r\n")
+        await receive_string(dut, "Hello 36\r\n")
         run_time = int(cocotb.utils.get_sim_time("ns") - start_time)
         dut._log.info(f"Took {run_time}ns at latency {latency}")
 
