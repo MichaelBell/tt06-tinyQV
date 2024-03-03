@@ -55,7 +55,7 @@ async def read_string(dut):
         await Timer(bit_time, "ns")
         assert dut.uart_tx.value == 1
         str += chr(uart_byte)
-        dut._log.info(f"Recvd: {chr(uart_byte)}")
+        dut._log.debug(f"Recvd: {chr(uart_byte)}")
     return str
 
 @cocotb.test()
