@@ -272,3 +272,36 @@ async def test_start(dut):
         await send_instr(dut, InstructionADDI(x0, x0, 0).encode())
     assert (dut.uo_out.value & gpio_sel) == (gpio_out & gpio_sel)
 
+@cocotb.test()
+async def test_debug_reg(dut):
+  dut._log.info("Start")
+  
+  # Our example module doesn't use clock and reset, but we show how to use them here anyway.
+  clock = Clock(dut.clk, 15.624, units="ns")
+  cocotb.start_soon(clock.start())
+
+  # Reset
+  await reset(dut, 1, 0x18)
+  
+  # Should start reading flash after 1 cycle
+  await ClockCycles(dut.clk, 1)
+  await start_read(dut, 0)
+  dut.ui_in.value = 0b01101000 # Register write enable
+  
+  val = 0
+  for i in range(8):
+    val += 0x102 * i
+    await send_instr(dut, InstructionADDI(i+8, x0 if i == 0 else (i+7), 0x102*i).encode())
+    start_nops(dut)
+    for i in range(24):
+        if dut.uo_out[7].value == 1:
+            break
+        await ClockCycles(dut.clk, 1)
+    else:
+        assert False
+
+    await ClockCycles(dut.clk, 1)
+    for j in range(8):
+        assert ((dut.uo_out.value >> 2) & 0xF) == ((val >> (4 * j)) & 0xF)
+        await ClockCycles(dut.clk, 1)
+    await stop_nops()

@@ -26,9 +26,6 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
-# Expect to drive IOs on clock falling edge, plus add a little more margin to be conservative
-set ::env(IO_PCT) 0.6
-
 # Allow customizations to SDC, currently just clk duty cycle uncertainty
 set ::env(BASE_SDC_FILE) "$::env(DESIGN_DIR)/base.sdc"
 

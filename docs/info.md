@@ -36,9 +36,10 @@ The SoC includes a UART and an SPI controller.
 
 | Register | Address | Description |
 | -------- | ------- | ----------- |
-| OUT      | 0x8000000 (W) | Bits 6 and 7 control out6 and out7 |
+| OUT      | 0x8000000 (W) | Control out0-7, if the corresponding bit in SEL is high |
 | OUT      | 0x8000000 (R) | Reads the current state of out0-7 |
 | IN       | 0x8000004 (R) | Reads the current state of in0-7 |
+| SEL      | 0x800000C (R/W) | Enables general purpose output on the corresponding bit on out0-7 |
 
 ### UART
 

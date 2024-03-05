@@ -7,3 +7,11 @@ set_clock_uncertainty 2 -fall_from clk -rise_to clk
 
 # Fix reset delay
 set_input_delay 1.5 -clock [get_clocks $::env(CLOCK_PORT)] {rst_n}
+
+# Longer delays for bidi IOs as we expect to drive them on clock falling edge
+set bidi_delay_value [expr $::env(CLOCK_PERIOD) * 0.6]
+set_input_delay $bidi_delay_value -clock [get_clocks $::env(CLOCK_PORT)] {uio_in}
+set_output_delay $bidi_delay_value -clock [get_clocks $::env(CLOCK_PORT)] {uio_out uio_oe}
+
+# No delay on output 7 as this is used for deubg signals
+set_output_delay 0 -clock [get_clocks $::env(CLOCK_PORT)] {uo_out[7]}
