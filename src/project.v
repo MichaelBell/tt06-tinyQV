@@ -72,7 +72,7 @@ module tt_um_MichaelBell_tinyQV (
 
     // Peripheral IOs on ui_in and uo_out
     wire       spi_miso  = ui_in[2];
-    wire       uart_rxd  = ui_in[3];
+    wire       uart_rxd  = ui_in[7];
 
     wire       spi_cs;
     wire       spi_sck;
@@ -85,12 +85,12 @@ module tt_um_MichaelBell_tinyQV (
     reg  [7:0] gpio_out_sel;
     reg  [7:0] gpio_out;
 
-    assign uo_out[0] = gpio_out_sel[0] ? gpio_out[0] : spi_cs;
-    assign uo_out[1] = gpio_out_sel[1] ? gpio_out[1] : spi_sck;
-    assign uo_out[2] = gpio_out_sel[2] ? gpio_out[2] : spi_mosi;
-    assign uo_out[3] = gpio_out_sel[3] ? gpio_out[3] : spi_dc;
-    assign uo_out[4] = gpio_out_sel[4] ? gpio_out[4] : uart_txd;
-    assign uo_out[5] = gpio_out_sel[5] ? gpio_out[5] : uart_rts;
+    assign uo_out[0] = gpio_out_sel[0] ? gpio_out[0] : uart_txd;
+    assign uo_out[1] = gpio_out_sel[1] ? gpio_out[1] : uart_rts;
+    assign uo_out[2] = gpio_out_sel[2] ? gpio_out[2] : spi_dc;
+    assign uo_out[3] = gpio_out_sel[3] ? gpio_out[3] : spi_mosi;
+    assign uo_out[4] = gpio_out_sel[4] ? gpio_out[4] : spi_cs;
+    assign uo_out[5] = gpio_out_sel[5] ? gpio_out[5] : spi_sck;
     assign uo_out[6] = gpio_out_sel[6] ? gpio_out[6] : debug_uart_txd;
     assign uo_out[7] = gpio_out_sel[7] ? gpio_out[7] : debug_signal;
 

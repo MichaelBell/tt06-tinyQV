@@ -35,12 +35,13 @@ module tb_qspi ();
 
   wire spi_miso;
   assign ui_in[2] = spi_miso;
-  wire spi_cs = uo_out[0];
-  wire spi_sck = uo_out[1];
-  wire spi_mosi = uo_out[2];
-  wire spi_dc = uo_out[3];
+  wire spi_cs = uo_out[4];
+  wire spi_sck = uo_out[5];
+  wire spi_mosi = uo_out[3];
+  wire spi_dc = uo_out[2];
 
-  wire uart_tx = uo_out[4];
+  wire uart_tx = uo_out[0];
+  wire debug_uart_tx = uo_out[6];
 
   // Replace tt_um_example with your module name:
   tt_um_MichaelBell_tinyQV user_project (
