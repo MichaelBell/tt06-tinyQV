@@ -16,7 +16,7 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "riscv-model"])
     from riscvmodel.insn import *
 
-from riscvmodel.regnames import x0, x1, tp
+from riscvmodel.regnames import x0, x1, sp, tp, a0, a1, a2, a3
 
 from test_util import reset
 
@@ -40,15 +40,15 @@ async def start_read(dut, addr):
 
     if dut.qspi_flash_select != select:
         # Command
-        cmd = 0xEB
-        assert dut.qspi_data_oe.value == 1    # Command
-        for i in range(8):
+        cmd = 0x0B
+        assert dut.qspi_data_oe.value == 0xF    # Command
+        for i in range(2):
             await ClockCycles(dut.clk, 1, False)
             assert select.value == 0
             assert dut.qspi_clk_out.value == 1
-            assert dut.qspi_data_out.value == (1 if cmd & 0x80 else 0)
-            assert dut.qspi_data_oe.value == 1
-            cmd <<= 1
+            assert dut.qspi_data_out.value == (cmd & 0xF0) >> 4
+            assert dut.qspi_data_oe.value == 0xF
+            cmd <<= 4
             await ClockCycles(dut.clk, 1, False)
             assert select.value == 0
             assert dut.qspi_clk_out.value == 0
@@ -66,15 +66,16 @@ async def start_read(dut, addr):
         assert dut.qspi_clk_out.value == 0
 
     # Dummy
-    for i in range(2):
-        await ClockCycles(dut.clk, 1, False)
-        assert select.value == 0
-        assert dut.qspi_clk_out.value == 1
-        assert dut.qspi_data_oe.value == 0xF
-        assert dut.qspi_data_out.value == 0xA
-        await ClockCycles(dut.clk, 1, False)
-        assert select.value == 0
-        assert dut.qspi_clk_out.value == 0
+    if dut.qspi_flash_select == select:
+        for i in range(2):
+            await ClockCycles(dut.clk, 1, False)
+            assert select.value == 0
+            assert dut.qspi_clk_out.value == 1
+            assert dut.qspi_data_oe.value == 0xF
+            assert dut.qspi_data_out.value == 0xA
+            await ClockCycles(dut.clk, 1, False)
+            assert select.value == 0
+            assert dut.qspi_clk_out.value == 0
 
     for i in range(4):
         await ClockCycles(dut.clk, 1, False)
@@ -89,10 +90,11 @@ async def start_read(dut, addr):
 nibble_shift_order = [4, 0, 12, 8, 20, 16, 28, 24]
 
 async def send_instr(dut, data):
-    for i in range(8):
+    instr_len = 8 if (data & 3) == 3 else 4
+    for i in range(instr_len):
         dut.qspi_data_in.value = (data >> (nibble_shift_order[i])) & 0xF
         await ClockCycles(dut.clk, 1, False)
-        assert select.value == 0
+        assert dut.qspi_flash_select.value == 0
         for _ in range(20):
             if dut.qspi_clk_out.value == 0:
                 await ClockCycles(dut.clk, 1, False)
@@ -101,8 +103,48 @@ async def send_instr(dut, data):
         assert dut.qspi_clk_out.value == 1
         assert dut.qspi_data_oe.value == 0
         await ClockCycles(dut.clk, 1, False)
-        assert select.value == 0
+        if i != instr_len - 1:
+            assert dut.qspi_flash_select.value == 0
         assert dut.qspi_clk_out.value == 0
+
+async def expect_load(dut, addr, val):
+    if addr >= 0x1800000:
+        select = dut.qspi_ram_b_select
+    elif addr >= 0x1000000:
+        select = dut.qspi_ram_a_select
+    else:
+        assert False # Load from flash not currently supported in this test
+
+    for i in range(12):
+        if select.value == 0:
+            await start_read(dut, addr)
+            dut.qspi_data_in.value = (val >> (nibble_shift_order[0])) & 0xF
+            for j in range(1,8):
+                await ClockCycles(dut.clk, 1, False)
+                assert select.value == 0
+                assert dut.qspi_clk_out.value == 1
+                assert dut.qspi_data_oe.value == 0
+                await ClockCycles(dut.clk, 1, False)
+                if select.value != 0:
+                    assert j in (2, 4)
+                    break
+                assert dut.qspi_clk_out.value == 0
+                dut.qspi_data_in.value = (val >> (nibble_shift_order[j])) & 0xF
+            break
+        elif dut.qspi_flash_select.value == 0:
+            await send_instr(dut, 0x0001)
+        else:
+            await ClockCycles(dut.clk, 1, False)
+    else:
+        assert False
+
+    for i in range(8):
+        await ClockCycles(dut.clk, 1)
+        if dut.qspi_flash_select.value == 0:
+            await start_read(dut, dut.user_project.i_tinyqv.instr_addr.value.integer * 2)
+            break
+    else:
+        assert False
 
 send_nops = True
 nop_task = None
@@ -148,7 +190,6 @@ async def read_reg(dut, reg, expected_val):
 async def test_start(dut):
   dut._log.info("Start")
   
-  # Our example module doesn't use clock and reset, but we show how to use them here anyway.
   clock = Clock(dut.clk, 15.624, units="ns")
   cocotb.start_soon(clock.start())
 
@@ -276,7 +317,6 @@ async def test_start(dut):
 async def test_debug_reg(dut):
   dut._log.info("Start")
   
-  # Our example module doesn't use clock and reset, but we show how to use them here anyway.
   clock = Clock(dut.clk, 15.624, units="ns")
   cocotb.start_soon(clock.start())
 
@@ -305,3 +345,38 @@ async def test_debug_reg(dut):
         assert ((dut.uo_out.value >> 2) & 0xF) == ((val >> (4 * j)) & 0xF)
         await ClockCycles(dut.clk, 1)
     await stop_nops()
+
+@cocotb.test()
+async def test_load_bug(dut):
+  dut._log.info("Start")
+  
+  clock = Clock(dut.clk, 15.624, units="ns")
+  cocotb.start_soon(clock.start())
+
+  # Reset
+  await reset(dut)
+
+  input_byte = 0b01101000
+  dut.ui_in.value = input_byte
+
+  def encode_clwsp(reg, base_reg, imm):
+    scrambled = (((imm << (12 - 5)) & 0b1000000000000) |
+                    ((imm << ( 4 - 2)) & 0b0000001110000) |
+                    ((imm >> ( 6 - 2)) & 0b0000000001100))
+    if base_reg == 2:
+        return 0x4002 | scrambled | (reg << 7)
+    else:
+        return 0x6002 | scrambled | (reg << 7)  
+  
+  # Should start reading flash after 1 cycle
+  await ClockCycles(dut.clk, 1)
+  await start_read(dut, 0)
+  await send_instr(dut, InstructionAUIPC(sp, 0x1001).encode())
+  await send_instr(dut, InstructionADDI(a0, x0, 0x001).encode())
+  await send_instr(dut, InstructionBEQ(a0, x0, 270).encode())
+
+  await send_instr(dut, encode_clwsp(a3, tp, 4))
+  await send_instr(dut, encode_clwsp(a2, sp, 12))
+  await expect_load(dut, 0x1001000 + 12, 0x123)
+  await read_reg(dut, a3, input_byte)
+  await read_reg(dut, a2, 0x123)
