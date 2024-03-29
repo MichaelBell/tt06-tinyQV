@@ -25,7 +25,9 @@ select = None
 async def start_read(dut, addr):
     global select
 
-    if addr >= 0x1800000:
+    if addr is None:
+        select = dut.qspi_flash_select
+    elif addr >= 0x1800000:
         select = dut.qspi_ram_b_select
     elif addr >= 0x1000000:
         select = dut.qspi_ram_a_select
@@ -59,7 +61,8 @@ async def start_read(dut, addr):
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
         assert dut.qspi_clk_out.value == 1
-        assert dut.qspi_data_out.value == (addr >> (20 - i * 4)) & 0xF
+        if addr is not None:
+            assert dut.qspi_data_out.value == (addr >> (20 - i * 4)) & 0xF
         assert dut.qspi_data_oe.value == 0xF
         await ClockCycles(dut.clk, 1, False)
         assert select.value == 0
@@ -141,7 +144,10 @@ async def expect_load(dut, addr, val):
     for i in range(8):
         await ClockCycles(dut.clk, 1)
         if dut.qspi_flash_select.value == 0:
-            await start_read(dut, dut.user_project.i_tinyqv.instr_addr.value.integer * 2)
+            if hasattr(dut.user_project, "i_tinyqv"):
+                await start_read(dut, dut.user_project.i_tinyqv.instr_addr.value.integer * 2)
+            else:
+                await start_read(dut, None)
             break
     else:
         assert False
