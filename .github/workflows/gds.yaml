@@ -14,7 +14,7 @@ jobs:
           submodules: recursive
 
       - name: Build GDS
-        uses: MichaelBell/tt-gds-action@tt06-openlane-update
+        uses: MichaelBell/tt-gds-action@tt06-no-pin-swaps
   
   precheck:
     needs: gds
