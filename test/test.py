@@ -275,7 +275,9 @@ async def test_start(dut):
     spi_byte = random.randint(0, 255)
     spi_byte_in = random.randint(0, 255)
     #print(f"{spi_byte_in:02x}")
-    await send_instr(dut, InstructionADDI(x1, x0, divider - 1).encode())
+    spi_config = divider - 1
+    if divider == 1: spi_config += 4  # Use high latency for divider 1
+    await send_instr(dut, InstructionADDI(x1, x0, spi_config).encode())
     await send_instr(dut, InstructionSW(tp, x1, 0x24).encode())
     await send_instr(dut, InstructionADDI(x1, x0, spi_byte | 0x100).encode())
     await send_instr(dut, InstructionSW(tp, x1, 0x20).encode())
