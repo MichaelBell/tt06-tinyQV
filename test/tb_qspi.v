@@ -16,7 +16,8 @@ module tb_qspi ();
   reg clk;
   reg rst_n;
   reg ena;
-  reg [7:0] ui_in;
+  reg [7:0] ui_in_base;
+  wire [7:0] ui_in;
   reg [7:0] uio_in;
   wire [7:0] uo_out;
   wire [7:0] uio_out;
@@ -33,7 +34,7 @@ module tb_qspi ();
   wire qspi_ram_a_select = uio_out[6];
   wire qspi_ram_b_select = uio_out[7];
 
-  wire spi_miso;
+  wire spi_miso = ui_in_base[2];
   assign ui_in[2] = spi_miso;
   wire spi_cs = uo_out[4];
   wire spi_sck = uo_out[5];
@@ -41,7 +42,10 @@ module tb_qspi ();
   wire spi_dc = uo_out[2];
 
   wire uart_tx = uo_out[0];
+  wire uart_rts = uo_out[1];
   wire debug_uart_tx = uo_out[6];
+  wire uart_rx = ui_in_base[7];
+  assign ui_in = {uart_rx, ui_in_base[6:3], spi_miso, ui_in_base[1:0]};
 
   // Replace tt_um_example with your module name:
   tt_um_MichaelBell_tinyQV user_project (
