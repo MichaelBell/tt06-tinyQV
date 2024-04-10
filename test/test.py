@@ -225,7 +225,30 @@ async def test_start(dut):
   await Timer(bit_time, "ns")
   assert dut.uart_tx.value == 1
 
+  # Test UART RX
+  assert dut.uart_rts.value == 0
+  uart_rx_byte = random.randint(0, 255)
+  dut.uart_rx.value = 0
+  await Timer(bit_time, "ns")
+  assert dut.uart_rts.value == 1
+  for i in range(8):
+      dut.uart_rx.value = uart_rx_byte & 1
+      await Timer(bit_time, "ns")
+      assert dut.uart_rts.value == 1
+      uart_rx_byte >>= 1
+  dut.uart_rx.value = 1
+  await Timer(bit_time, "ns")
+  assert dut.uart_rts.value == 1
+
   await stop_nops()
+
+  await send_instr(dut, InstructionLW(x1, tp, 0x14).encode())
+  await read_reg(dut, x1, 0x2)
+  await send_instr(dut, InstructionLW(x1, tp, 0x10).encode())
+  await read_reg(dut, x1, uart_rx_byte)
+  assert dut.uart_rts.value == 0
+  await send_instr(dut, InstructionLW(x1, tp, 0x14).encode())
+  await read_reg(dut, x1, 0)
 
   # Test Debug UART TX
   uart_byte = 0x5A
@@ -334,7 +357,7 @@ async def test_debug_reg(dut):
   # Should start reading flash after 1 cycle
   await ClockCycles(dut.clk, 1)
   await start_read(dut, 0)
-  dut.ui_in.value = 0b01101000 # Register write enable
+  dut.ui_in_base.value = 0b01101000 # Register write enable
   
   val = 0
   for i in range(8):
