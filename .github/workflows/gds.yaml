@@ -35,6 +35,15 @@ jobs:
       - name: GL test
         uses: TinyTapeout/tt-gds-action/gl_test@tt06
 
+      - name: upload vcd
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-vcd
+          path: |
+            test/sim_build/gl/*.fst
+            test/*result.xml        
+
   viewer:
     needs: gds
     runs-on: ubuntu-latest

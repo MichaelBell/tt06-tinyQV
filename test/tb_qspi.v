@@ -5,13 +5,6 @@
 */
 module tb_qspi ();
 
-  // Dump the signals to a VCD file. You can view it with gtkwave.
-  initial begin
-    $dumpfile("tb_qspi.vcd");
-    $dumpvars(0, tb_qspi);
-    #1;
-  end
-
   // Wire up the inputs and outputs:
   reg clk;
   reg rst_n;

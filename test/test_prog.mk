@@ -3,6 +3,7 @@
 
 # defaults
 SIM ?= icarus
+WAVES ?= 1
 TOPLEVEL_LANG ?= verilog
 PROG ?= hello
 PROG_FILE ?= $(PROG).hex
