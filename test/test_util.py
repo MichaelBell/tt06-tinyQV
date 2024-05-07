@@ -1,7 +1,7 @@
 
 from cocotb.triggers import ClockCycles
 
-async def reset(dut, latency=1, ui_in=0):
+async def reset(dut, latency=1, ui_in=0x80):
   # Reset
   dut._log.info(f"Reset, latency {latency}")
   dut.ena.value = 1
