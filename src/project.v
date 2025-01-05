@@ -55,6 +55,7 @@ module tt_um_MichaelBell_tinyQV (
     wire [27:0] addr;
     wire  [1:0] write_n;
     wire  [1:0] read_n;
+    wire        read_complete;
 /*verilator lint_off UNUSEDSIGNAL*/
     wire [31:0] data_to_write;  // Currently only bottom byte used.
 /*verilator lint_on UNUSEDSIGNAL*/
@@ -130,6 +131,7 @@ module tt_um_MichaelBell_tinyQV (
         .data_addr(addr),
         .data_write_n(write_n),
         .data_read_n(read_n),
+        .data_read_complete(read_complete),
         .data_out(data_to_write),
 
         .data_ready(data_ready),
@@ -223,7 +225,7 @@ module tt_um_MichaelBell_tinyQV (
         .resetn(rst_reg_n),
         .uart_rxd(uart_rxd),
         .uart_rts(uart_rts),
-        .uart_rx_read(connect_peripheral == PERI_UART && read_n != 2'b11),
+        .uart_rx_read(connect_peripheral == PERI_UART && read_complete),
         .uart_rx_valid(uart_rx_valid),
         .uart_rx_data(uart_rx_data) 
     );
