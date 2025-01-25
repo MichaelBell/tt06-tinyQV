@@ -23,7 +23,7 @@ On a Linux system with developer tools installed, that should go something like 
     sudo chown `whoami` /opt/tinyQV
     pushd /opt/tinyQV
     wget https://github.com/MichaelBell/riscv-gnu-toolchain/releases/download/13.2.0-tqv-1.0/riscv32ec-13.2.0-tqv-1.0.tar.gz
-    tar xf riscv32ec-13.2.0-tqv-1.0.tar.gz
+    tar xf riscv32ec-13.2.0-tqv-1.0.tar.gz --strip-components=1
     popd
 
     git clone https://github.com/MichaelBell/tinyQV-sdk
