@@ -2,10 +2,40 @@
 
 # TinyQV - A Risc-V SoC for Tiny Tapeout
 
+- [TinyQV Programmer](https://tinyqv.rebel-lion.uk/), for using TinyQV on TT06
 - [Documentation for project](docs/info.md)
 - [More details about tinyQV](https://github.com/MichaelBell/tinyQV)
 - [tinyQV-sdk for building tinyQV programs](https://github.com/MichaelBell/tinyQV-sdk)
 - [Example tinyQV programs](https://github.com/MichaelBell/tinyQV-projects)
+
+## How To Build a Program for TinyQV
+
+In summary:
+
+1. Download this [build of gcc for TinyQV](https://github.com/MichaelBell/riscv-gnu-toolchain/releases/tag/13.2.0-tqv-1.0) and extract it to `/opt/tinyQV`
+2. Clone the [tinyQV-sdk](https://github.com/MichaelBell/tinyQV-sdk) and build it
+3. Clone the [example projects repo](https://github.com/MichaelBell/tinyQV-projects) and build `donut.bin`
+4. Use the [TinyQV Programmer](https://tinyqv.rebel-lion.uk/) to flash and run `donut.bin`
+
+On a Linux system with developer tools installed, that should go something like this:
+
+    sudo mkdir /opt/tinyQV
+    sudo chown `whoami` /opt/tinyQV
+    pushd /opt/tinyQV
+    wget https://github.com/MichaelBell/riscv-gnu-toolchain/releases/download/13.2.0-tqv-1.0/riscv32ec-13.2.0-tqv-1.0.tar.gz
+    tar xf riscv32ec-13.2.0-tqv-1.0.tar.gz
+    popd
+
+    git clone https://github.com/MichaelBell/tinyQV-sdk
+    cd tinyQV-sdk
+    make
+    cd ..
+
+    git clone https://github.com/MichaelBell/tinyQV-projects
+    cd tinyQV-projects/donut
+    make
+
+If that all went well you should now have a `donut.bin` built.  Try running that in the [TinyQV Programmer](https://tinyqv.rebel-lion.uk/) using the Custom option.
 
 ## What is Tiny Tapeout?
 
