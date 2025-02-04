@@ -1,0 +1,5 @@
+set ngbehavior=hsa
+set ng_nomodcheck
+set num_threads=12
+set skywaterpdk        ; skip some checks for faster lib loading
+option klu             ; select KLU as matrix solver

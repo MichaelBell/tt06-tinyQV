@@ -43,7 +43,7 @@ Vsd1 sd1 0 PWL(0 0  20ns 0  21ns 1.8 145ns 1.8 146ns 0 562ns 0 563ns 1.8 624ns 1
 Vsd2 sd2 0 PWL(0 0 562ns 0 563ns 1.8 624ns 1.8 625ns 0 687ns 0 688ns 1.8 718ns 1.8 719ns 0 812ns 0 813ns 1.8 874ns 1.8 875ns 0)
 Vsd3 sd3 0 PWL(0 0 593ns 0 594ns 1.8 624ns 1.8 625ns 0 780ns 0 781ns 1.8 812ns 1.8 813ns 0 843ns 0 844ns 1.8 874ns 1.8 875ns 0)
 
-*.save V2#branch VPWR GPWR UPWR UGND sd_clk sd_clk_out x1.i_tinyqv.mem.q_ctrl.spi_clk_out x1.clknet_leaf_15_clk x1._0407_ clk rst_n sd0 sd1 sd2 sd3 sd_cs sd0_out sd1_out sd2_out sd3_out
+.save V2#branch VPWR GPWR UPWR UGND sd_clk sd_clk_out x1.i_tinyqv.mem.q_ctrl.spi_clk_out x1.clknet_leaf_15_clk x1._0407_ clk rst_n sd0 sd1 sd2 sd3 sd_cs sd0_out sd1_out sd2_out sd3_out
 .tran 0.1n 1100n
 *.tran 1n 200n
 
