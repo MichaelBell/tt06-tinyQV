@@ -1,0 +1,48 @@
+* TT06 TinyQV Simulation
+* Run with `make sim_nand`
+
+.include "pdk_lib.spice"
+
+* Power supply
+V1 VGND 0 0
+V2 VSRC VGND 1.8
+R1 VPWR VSRC 2
+
+.include "tt_um_MichaelBell_tinyQV.spice"
+
+x1 VGND VPWR clk ena rst_n
++ ui_in[0] ui_in[1] ui_in[2] ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7]
++ VGND sd0 sd1 VGND sd2 sd3 VGND VGND
++ uio_oe[0] uio_oe[1] uio_oe[2] uio_oe[3] uio_oe[4] uio_oe[5] uio_oe[6] uio_oe[7]
++ sd_cs sd0_out sd1_out sd_clk sd2_out sd3_out uio_out6 uio_out7
++ uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4] uo_out[5] uo_out[6] uo_out[7]
++ tt_um_MichaelBell_tinyQV
+
+* Tie the clock to ground, ena/rst_n to power
+Vclk clk 0 PULSE(0 1.75 0 .2ns .2ns 7.6125ns 15.625ns)
+Vtie_ena ena VPWR 0
+Vrst_n rst_n 0 PULSE(1.8 0 20ns 1ns 1ns 125ns 150ns 1)
+
+* Need to add mux latency to all of these except the initial config pulse - currently timing is based on the clock
+*Vsd0 sd0 0 PWL(0 0 563ns 0 564ns 1.8 594ns 1.8 595ns 0 813ns 0 814ns 1.8 844ns 1.8 845ns 0)
+*Vsd1 sd1 0 PWL(0 0  20ns 0  21ns 1.8 145ns 1.8 146ns 0 532ns 0 533ns 1.8 594ns 1.8 595ns 0 657ns 0 658ns 1.8 688ns 1.8 689ns 0 750ns 0 751ns 1.8 844ns 1.8 845ns 0)
+*Vsd2 sd2 0 PWL(0 0 532ns 0 533ns 1.8 594ns 1.8 595ns 0 657ns 0 658ns 1.8 688ns 1.8 689ns 0 782ns 0 783ns 1.8 844ns 1.8 845ns 0)
+*Vsd3 sd3 0 PWL(0 0 563ns 0 564ns 1.8 594ns 1.8 595ns 0 750ns 0 751ns 1.8 782ns 1.8 783ns 0 813ns 0 814ns 1.8 844ns 1.8 845ns 0)
+Vsd0 sd0 0 PWL(0 0 593ns 0 594ns 1.8 624ns 1.8 625ns 0 843ns 0 844ns 1.8 874ns 1.8 875ns 0)
+Vsd1 sd1 0 PWL(0 0  20ns 0  21ns 1.8 145ns 1.8 146ns 0 562ns 0 563ns 1.8 624ns 1.8 625ns 0 687ns 0 688ns 1.8 718ns 1.8 719ns 0 780ns 0 781ns 1.8 874ns 1.8 875ns 0)
+Vsd2 sd2 0 PWL(0 0 562ns 0 563ns 1.8 624ns 1.8 625ns 0 687ns 0 688ns 1.8 718ns 1.8 719ns 0 812ns 0 813ns 1.8 874ns 1.8 875ns 0)
+Vsd3 sd3 0 PWL(0 0 593ns 0 594ns 1.8 624ns 1.8 625ns 0 780ns 0 781ns 1.8 812ns 1.8 813ns 0 843ns 0 844ns 1.8 874ns 1.8 875ns 0)
+
+.tran 0.05n 1100n
+*.tran 2n 100n
+
+.control
+run
+*plot V(rst_n) V(sd_clk) V(sd_cs)
+*plot .8+.1*V(sd_clk) .6+.1*V(sd0) .4+.1*V(sd1) .2+.1*V(sd2) .1*V(sd3)
+plot -10*I(v2) V(VPWR)
+*plot .8+.1*V(clk) .6+.1*V(sd0) .4+.1*V(sd1) .2+.1*V(sd2) .1*V(sd3)
+.endc
+.end
+
+.end
